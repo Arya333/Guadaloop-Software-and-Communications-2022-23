@@ -7,8 +7,11 @@ File file;
 #define trigPin 6
 #define echoPin 7
 #define pinCS 10
+#define receiveInterval 5000
 
 float duration, distance;
+int lastReceive;
+int lastTransmission;
 
 void setup() {
   // put your setup code here, to run once:
@@ -31,9 +34,7 @@ void setup() {
 
 }
 
-
-void loop() {
-  
+String sendMessage(){
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
 
@@ -48,32 +49,35 @@ void loop() {
   String params = "AT+SEND=1,6,";  
   sentData += params;
   sentData += String(distance, 3);
-  Serial.println(sentData);
+  //Serial.println(sentData);
+  
 
   file = SD.open("data.txt", FILE_WRITE);
   if (file) {
     file.println(distance);
     file.close();
   } else {
-    Serial.println("Error opening data.txt");
+    //Serial.println("Error opening data.txt");
   }
-  delay(1000);
+  return sentData;
 }
 
+int interval = 3000;
 
-// Serial.print("Distance: ");
-//   if (distance >= 400 || distance <= 2) {
-//     Serial.println("Out of Range");
-//   } else {
-//     Serial.println(distance);
-//     String sentData;
-//     String params = "AT+SEND=1,6,";
-    
-//     sentData += params;
-//     sentData += String(distance, 3);
-//     if (millis() >= interval + lastTransmission) {
-//       Serial.println(sentData);
-//       lastTransmission = millis();
-//     }
-//     delay(1000);
-//   }
+void loop() {
+  
+  Serial.println(sendMessage());
+  lastTransmission = millis();
+  delay(500);
+
+  // while(millis() < interval + lastTransmission){
+  //   if (Serial.available() > 0) {
+  //     String serialData = Serial.readString();
+  //     Serial.print(serialData);
+  //   }
+  // }
+
+  
+
+}
+

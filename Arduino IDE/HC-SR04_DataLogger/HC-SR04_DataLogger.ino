@@ -54,5 +54,5 @@ void loop() {
   } else {
     Serial.println("Error opening data.txt");
   }
-  delay(500);
+  //delay(500);
 }
