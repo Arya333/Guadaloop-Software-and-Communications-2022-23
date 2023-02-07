@@ -1,6 +1,7 @@
 #include <string.h>
 #include <SD.h>
 #include <SPI.h>
+#include <SoftwareSerial.h>
 
 File file;
 
@@ -46,7 +47,7 @@ String sendMessage(){
   distance = (duration / 2) * 0.0343;
 
   String sentData;
-  String params = "AT+SEND=1,6,";  
+  String params = "AT+SEND=2,6,";  
   sentData += params;
   sentData += String(distance, 3);
   //Serial.println(sentData);
@@ -63,21 +64,38 @@ String sendMessage(){
 }
 
 int interval = 3000;
+bool sent = 0;
 
 void loop() {
-  
-  Serial.println(sendMessage());
-  lastTransmission = millis();
-  delay(500);
 
-  // while(millis() < interval + lastTransmission){
-  //   if (Serial.available() > 0) {
-  //     String serialData = Serial.readString();
-  //     Serial.print(serialData);
+  // if (Serial.available()) {
+  // //   Serial.println(Serial.readString());
+  // // }
+  
+  // Serial.println(sendMessage());
+  lastTransmission = millis();
+
+  String incoming;
+  while (millis() < interval + lastTransmission) {
+    if (Serial.available()) {
+      incoming = Serial.readString();
+      Serial.println(incoming);
+    }
+  }
+
+
+  // if (!sent) {
+  //   Serial.println(sendMessage());
+  //   lastTransmission = millis();
+  //   sent = 1;
+  // }
+  // else {
+  //   String incoming;
+  //   while (millis() < interval + lastTransmission) {
+      
   //   }
   // }
 
-  
 
 }
 
