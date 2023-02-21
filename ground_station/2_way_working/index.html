@@ -4,19 +4,24 @@
     <title>Run Python Script</title>
     <script>
         document.getElementById("run-script-button").addEventListener("click", function() {
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", "/run_python_script", true);
-          xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-          xhr.onreadystatechange = function() {
-            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-              console.log(this.responseText);
-            }
-          };
-          xhr.send(JSON.stringify({ script_file: "grab_connection.py" }));
+          var button = document.getElementById("run-script-button");
+          button.style.backgroundColor = "green";
+          
+          // const xhr = new XMLHttpRequest();
+          // xhr.open("POST", "/run_python_script", true);
+          // xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+          // xhr.onreadystatechange = function() {
+          //   if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+          //     console.log(this.responseText);
+          //   }
+          // };
+          // xhr.send(JSON.stringify({ script_file: "grab_connection.py" }));
         });
     </script>
   </head>
   <body>
-    <button id="run-script-button">Run Python Script</button>
+    <button id="run-script-button" style="background-color:red">SWITCH LED LIGHT STATUS</button>
   </body>
 </html>
+
+<!-- press 'cmnd+k v' to preview html -->
