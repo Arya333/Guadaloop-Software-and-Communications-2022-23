@@ -1,43 +1,63 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 function App() {
- let port = ''
- let writer = ''
+ console.log("dom fire")
+ const[port, setPort] =  useState();
+
  const [bit_val, setBit_val] = useState(49);
+
+
   const openSerialPort = async () =>{
    
-    port = await navigator.serial.requestPort();
-      await port.open({
+   const temp_port = await navigator.serial.requestPort();
+      await temp_port.open({
         baudRate: 115200
       });
-      const writer = port.writable.getWriter();
-      writer.releaseLock();
+      setPort(temp_port);
+      
   }
 
   const flash = async() => {
-    // console.log(writer)
-  
-     writer = port.writable.getWriter();
-    const data = new Uint8Array([bit_val]); // hello
-    if ( bit_val == 48){
-      setBit_val(49)
-    }else {
-      setBit_val(48)
-    }
+   let writer = port.writable.getWriter()
     
+    // if (writer['desiredSize'] != undefined){
+    //   console.log("writer is: "+ writer['desiredSize'])
+    const data = new Uint8Array([49]); // hello
     await writer.write(data);
-    console.log("writing")
+
+    // if ( bit_val == 48){
+    //   setBit_val(49)
+    // }else {
+    //   setBit_val(48)
+    // }
     // Allow the serial port to be closed later.
     writer.releaseLock();
   }
+  
+const off = async()=>{
+  let writer = port.writable.getWriter()
+  
+  // if (writer['desiredSize'] != undefined){
+  //   console.log("writer is: "+ writer['desiredSize'])
+  const data = new Uint8Array([48]); // hello
+  await writer.write(data);
 
+  // if ( bit_val == 48){
+  //   setBit_val(49)
+  // }else {
+  //   setBit_val(48)
+  // }
+  // Allow the serial port to be closed later.
+  writer.releaseLock();
+}
     
   
   return (
     <div className="App">
     <button onClick={() => openSerialPort()}> Open Serial Port </button>
-    <button onClick={() => flash()}> flashy </button>
+    <button onClick={() => flash()}> on </button>
+    <button onClick={() => off()}> off </button>
     </div>
   );
 }
