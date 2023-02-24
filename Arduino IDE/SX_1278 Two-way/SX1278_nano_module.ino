@@ -6,6 +6,8 @@
    MOSI (Green)   ->   D11     
    SLCK (Yellow)  ->   D13
    Nss (Orange)   ->   D10
+   REST (Purple)  ->   D9
+   DIO0 (Blue)    ->   D2
    GND (Black)    ->   GND
 */
 
