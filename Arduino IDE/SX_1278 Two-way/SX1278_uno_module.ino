@@ -15,7 +15,7 @@
 #include <LoRa.h>  
 
 #define buttonPin 8
-#define ledPin 9
+#define ledPin 7
 
 String outgoing;
 
@@ -25,7 +25,7 @@ byte destination = 0xFF;
 long lastSendTime = 0;
 int interval = 50;
 
-int message;
+String message;
 
 void setup() {
   Serial.begin(9600);
@@ -44,12 +44,12 @@ void setup() {
 void loop() {
   if (millis() - lastSendTime > interval) {
     if (digitalRead(buttonPin) == HIGH) {
-      message = 1;
+      message = "BUTTON ON";
       sendMessage(message);
     }
  
     if (digitalRead(buttonPin) == LOW) {
-      message = 0; 
+      message = "BUTTON OFF"; 
       sendMessage(message);
     }
  
