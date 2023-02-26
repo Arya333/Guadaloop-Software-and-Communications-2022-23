@@ -17,15 +17,14 @@
 #define buttonPin 8
 #define ledPin 7
 
-String outgoing;
+String flag;   //Flag to check send permission
 
 byte msgCount = 0;
 byte localAddress = 0xBB;
 byte destination = 0xFF;
 long lastSendTime = 0;
-int interval = 50;
+int interval = 2000;
 
-String message;
 
 void setup() {
   Serial.begin(9600);
@@ -34,7 +33,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(buttonPin, INPUT);
 
-  if (!LoRa.begin(915E6)) {
+  if (!LoRa.begin(433E6)) {
     Serial.println("LoRa Init Failed");
     while (true);
   }
@@ -42,24 +41,18 @@ void setup() {
 }
 
 void loop() {
-  if (millis() - lastSendTime > interval) {
-    if (digitalRead(buttonPin) == HIGH) {
-      message = "BUTTON ON";
-      sendMessage(message);
-    }
- 
-    if (digitalRead(buttonPin) == LOW) {
-      message = "BUTTON OFF"; 
-      sendMessage(message);
-    }
- 
-    //Serial.println("Sending " + message);
-    lastSendTime = millis();            // timestamp the message
-    interval = random(50) + 100;  
-  }
- 
-  // parse for a packet, and call onReceive with the result:
-  onReceive(LoRa.parsePacket());
+   while(!flag.equals("SWITCH")){
+    flag = onReceive(LoRa.parsePacket());    
+   }
+
+   flag = "";
+   if (digitalRead(buttonPin) == HIGH){
+      sendMessage("ON");
+   }
+   if (digitalRead(buttonPin) == LOW){
+      sendMessage("OFF");
+   }
+   sendMessage("SWITCH");   //Switch permissions
 }
 
 void sendMessage(String outgoing) {
@@ -70,12 +63,13 @@ void sendMessage(String outgoing) {
   LoRa.write(outgoing.length());        // add payload length
   LoRa.print(outgoing);                 // add payload
   LoRa.endPacket();                     // finish packet and send it
-  msgCount++;                           // increment message ID
+  msgCount++; // increment message ID
+  //Serial.println("Message Sent");
 }
 
-void onReceive(int packetSize) {
-  if (packetSize == 0) return;          // if there's no packet, return
- 
+String onReceive(int packetSize) {
+  if (packetSize == 0) return "";          // if there's no packet, return
+  
   // read packet header bytes:
   int recipient = LoRa.read();          // recipient address
   byte sender = LoRa.read();            // sender address
@@ -91,15 +85,23 @@ void onReceive(int packetSize) {
   // check length for error
   if (incomingLength != incoming.length()) {   
    Serial.println("error: message length does not match length");
-   return;                             
+   return "";                             
   }
  
   // if the recipient isn't this device or broadcast,
   if (recipient != localAddress && recipient != 0xFF) {
     Serial.println("This message is not for me.");
-    return;                             
+    return "";                             
   }
-
-  Serial.println(incoming);
-  Serial.println();
+  if (!incoming.equals("SWITCH")){
+    Serial.println(incoming);
+    Serial.println();
+  }
+  if (incoming.equals("ON")){
+    digitalWrite(ledPin, HIGH);
+  }
+  if (incoming.equals("OFF")){
+    digitalWrite(ledPin, LOW);
+  }
+  return incoming;
 }
