@@ -15,17 +15,17 @@
 #include <LoRa.h>  
 
 #define buttonPin 8
-#define ledPin 9
+#define ledPin 7
 
-String outgoing;
+String flag; // Flag to check send permission
+int startTime; // Timer variable
+int endTime; // Timer variable
 
 byte msgCount = 0;
 byte localAddress = 0xFF;
 byte destination = 0xBB;
 long lastSendTime = 0;
-int interval = 50;
-
-String message;
+int interval = 2000;
 
 void setup() {
   Serial.begin(9600);
@@ -44,24 +44,23 @@ void setup() {
 }
 
 void loop() {
-  if (millis() - lastSendTime > interval) {
-    if (digitalRead(buttonPin) == HIGH) {
-      message = "BUTTON ON";
-      sendMessage(message);
-    }
- 
-    if (digitalRead(buttonPin) == LOW) {
-      message = "BUTTON OFF"; 
-      sendMessage(message);
-    }
- 
-    //Serial.println("Sending " + message);
-    lastSendTime = millis();            // timestamp the message
-    interval = random(50) + 100;  
+  flag = ""; // Reset flag
+    
+  if (digitalRead(buttonPin) == HIGH) {
+    sendMessage("ON");
   }
- 
-  // parse for a packet, and call onReceive with the result:
-  onReceive(LoRa.parsePacket());
+
+  if (digitalRead(buttonPin) == LOW) {
+    sendMessage("OFF");
+  }
+  
+  sendMessage("SWITCH"); // Switch roles
+
+  startTime = endTime = millis(); // Only stay in loop for 1000 ms
+  while (!flag.equals("SWITCH") && (endTime - startTime) <= 1000) {
+    flag = onReceive(LoRa.parsePacket());
+    endTime = millis();
+  }
 }
 
 void sendMessage(String outgoing) {
@@ -75,9 +74,9 @@ void sendMessage(String outgoing) {
   msgCount++;                           // increment message ID
 }
 
-void onReceive(int packetSize) {
+String onReceive(int packetSize) {
   if (packetSize == 0) {
-    return;          // if there's no packet, return
+    return "";          // if there's no packet, return
   }
  
   // read packet header bytes:
@@ -92,18 +91,30 @@ void onReceive(int packetSize) {
     incoming += (char)LoRa.read();
   }
 
-  // check length for error
+// check length for error
   if (incomingLength != incoming.length()) {   
    Serial.println("error: message length does not match length");
-   return;                             
+   return "";                             
   }
  
   // if the recipient isn't this device or broadcast,
   if (recipient != localAddress && recipient != 0xBB) {
     Serial.println("This message is not for me.");
-    return;                             
+    return "";                             
   }
 
-  Serial.println(incoming);
-  Serial.println();  
+  if (!incoming.equals("SWITCH")) {
+    Serial.println(incoming);
+    Serial.println();
+  } 
+
+  if (incoming.equals("ON")) {
+    digitalWrite(ledPin, HIGH);
+  }
+
+  if (incoming.equals("OFF")) {
+    digitalWrite(ledPin, LOW);
+  }
+  
+  return incoming; 
 }
