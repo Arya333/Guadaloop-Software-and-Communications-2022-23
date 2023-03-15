@@ -1,35 +1,6 @@
-/*
-  Blink without Delay
-
-  Turns on and off a light emitting diode (LED) connected to a digital pin,
-  without using the delay() function. This means that other code can run at the
-  same time without being interrupted by the LED code.
-
-  The circuit:
-  - Use the onboard LED.
-  - Note: Most Arduinos have an on-board LED you can control. On the UNO, MEGA
-    and ZERO it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN
-    is set to the correct LED pin independent of which board is used.
-    If you want to know what pin the on-board LED is connected to on your
-    Arduino model, check the Technical Specs of your board at:
-    https://www.arduino.cc/en/Main/Products
-
-  created 2005
-  by David A. Mellis
-  modified 8 Feb 2010
-  by Paul Stoffregen
-  modified 11 Nov 2013
-  by Scott Fitzgerald
-  modified 9 Jan 2017
-  by Arturo Guadalupi
-
-  This example code is in the public domain.
-
-  https://www.arduino.cc/en/Tutorial/BuiltInExamples/BlinkWithoutDelay
-*/
-
 // constants won't change. Used here to set a pin number:
-const int ledPin = 13;// the number of the LED pin
+const int ledPin2 = 13;// the number of the LED pin
+const int ledPin = 10;
 const int buttonPin = 2;
 // Variables will change:
 int ledState = LOW;             // ledState used to set the LED
@@ -46,35 +17,93 @@ void setup() {
   // set the digital pin as output:
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
+  pinMode(ledPin2, OUTPUT);
   pinMode(buttonPin, INPUT);
 }
 char c;
-
+int count =10;
 void loop() {
-  if(Serial.available()){
+  
+  read();
+  send();
+  // delay(500);
+
+}
+
+void updateCount(){
+  count++;
+  if(count>99){
+    count=10;
+  }
+  return;
+}
+
+int sendCount = 1;
+
+void send(){
+  // buttonState = digitalRead(buttonPin);
+
+  // // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
+  // if (buttonState == HIGH) {
+  //   // turn LED on:
+  //   Serial.println("Hello World");
+  // } else {
+  //   // turn LED off:
+  //   Serial.println("Goodbye World");
+  // }
+
+  Serial.println(createPacket(sendCount));
+
+
+
+
+  sendCount++;
+  if(sendCount>3){
+    sendCount=1;
+  }
+
+
+}
+
+String createPacket(int identifier){  
+  int num = identifier;
+  String s = ",";
+  s += String(num);
+  num -=1;
+  num *= 6;
+  num +=1;
+
+  for(int i=0;i<6;i++){
+    s += ",";
+    s += String(num+i);
+    s += String(count);
+  }
+  
+
+  updateCount();
+  return s;
+
+}
+
+
+void read(){
+    if(Serial.available()){
     c = Serial.read();
     if(c=='1'){
       ledState = HIGH;
+      digitalWrite(ledPin2, LOW);
 
     }
     else if(c=='0'){
       ledState = LOW;
+      digitalWrite(ledPin2, LOW);
 
     }
+    // else{
+    //   Serial.println(c);
+    // }
+    
     digitalWrite(ledPin, ledState);
   }
-
-
-  buttonState = digitalRead(buttonPin);
-
-  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonState == HIGH) {
-    // turn LED on:
-    Serial.println("Hello World");
-  } else {
-    // turn LED off:
-    Serial.println("Goodbye World");
-  }
-  // delay(500);
 
 }
