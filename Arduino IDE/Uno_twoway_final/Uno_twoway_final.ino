@@ -8,99 +8,94 @@ void setup() {
   pinMode(buttonPin, INPUT);
 
   Serial.begin(115200);
-  while (!Serial);
+  while (!Serial)
+    ;
   Serial.println("LoRa Receiver");
 
   if (!LoRa.begin(433E6)) {
     Serial.println("Starting LoRa failed!");
-    while (1);
+    while (1)
+      ;
   }
 
   LoRa.setTxPower(20);
-
 }
 int starttime;
 int endtime;
+int counter = 0;
+int num = -1;
+bool nano = true;
 
 void loop() {
+  if (nano) {
+    sendString();
+  } else {
+    send(counter);
+  }
+  delay(10);
+
   starttime = millis();
   endtime = starttime;
-  while ((endtime - starttime) <=100) // do this loop for up to 1000mS
+  while ((endtime - starttime) <= 100)  // do this loop for up to 1000mS
   {
-    receive();
+    if (receive()) {
+      break;
+    }
     endtime = millis();
   }
-  send();
+  if (num == counter) {
+    counter = counter + 1;
+    if (counter % 5 == 0) {
+      nano = true;
+    } else {
+      nano = false;
+    }
+  }
+  // delay(50);
+  // counter = counter + 1;
+
+  // delay(50);
+
 
   // receive();
 
   // try to parse packet
-
-
 }
 
-int counter = 0;
-char a;
-void send(){
-  // Serial.print("Sending packet: ");
-  // Serial.println(counter);
 
-  // send packet
-  if(Serial.available()){
-    a = Serial.read();
-    if(a=='1'){
-    LoRa.beginPacket();
-    LoRa.print(1);
-    // LoRa.print(counter);
-    LoRa.endPacket();
-    }
-    else if(a=='0'){
-      LoRa.beginPacket();
-      LoRa.print(0);
-      // LoRa.print(counter);
-      LoRa.endPacket();
-    }
+void send(int s) {
 
-  }
-
-  // if(digitalRead(buttonPin)){
-  //   LoRa.beginPacket();
-  //   LoRa.print(1);
-  //   // LoRa.print(counter);
-  //   LoRa.endPacket();
-  // }
-  // else{
-  //   LoRa.beginPacket();
-  //   LoRa.print(0);
-  //   // LoRa.print(counter);
-  //   LoRa.endPacket();
-  // }
-
+  LoRa.beginPacket();
+  // LoRa.print(1);
+  LoRa.print(s);
+  LoRa.endPacket();
+  Serial.print("Sending packet: ");
+  Serial.println(counter);
 }
-char c;
-void receive(){
+
+void sendString() {
+
+  LoRa.beginPacket();
+  // LoRa.print(1);
+  LoRa.print("SEND");
+  LoRa.endPacket();
+  Serial.println("Sending packet: SEND");
+}
+
+
+String message = "";
+
+bool receive() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    // received a packet
-    // Serial.print("Received packet '");
-    // read packet
-    while (LoRa.available()) {
-      c = LoRa.read();
-      if(c=='1'){
-        Serial.println('1');
-        digitalWrite(ledPin, HIGH);
-
-      }
-      else if (c=='0'){
-        Serial.println('0');
-        digitalWrite(ledPin, LOW);
-      }
-      // Serial.print(c);
+    message = LoRa.readString();
+    Serial.println("Confirmation " + message);
+    if (nano) {
+      num = counter;
+    } else {
+      num = message.toInt();
     }
-
-    // print RSSI of packet
-    // Serial.print("' with RSSI ");
-    // Serial.println(LoRa.packetRssi());
-
+    return true;
   }
+  return false;
 }
