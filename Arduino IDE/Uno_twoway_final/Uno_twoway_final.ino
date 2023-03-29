@@ -3,6 +3,8 @@
 const int ledPin = 7;
 const int buttonPin = 8;
 
+int count =10;
+
 void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(buttonPin, INPUT);
@@ -45,32 +47,30 @@ void loop() {
   }
   if (num == counter) {
     counter = counter + 1;
+    if(counter==1000){
+      counter = 1;
+    }
     if (counter % 5 == 0) {
       nano = true;
     } else {
       nano = false;
     }
   }
-  // delay(50);
-  // counter = counter + 1;
-
-  // delay(50);
-
-
-  // receive();
-
-  // try to parse packet
 }
 
 
 void send(int s) {
 
   LoRa.beginPacket();
-  // LoRa.print(1);
-  LoRa.print(s);
+  int temp = s + 1000;
+  String send = String(temp);
+  send = send.substring(1,4);
+  send = send + createPacket(counter%5);
+  LoRa.print(send);
   LoRa.endPacket();
   Serial.print("Sending packet: ");
-  Serial.println(counter);
+  Serial.println(send);
+
 }
 
 void sendString() {
@@ -91,6 +91,12 @@ bool receive() {
     message = LoRa.readString();
     Serial.println("Confirmation " + message);
     if (nano) {
+      if(message.equals("1")){
+        digitalWrite(ledPin, HIGH);
+      }
+      else if(message.equals("0")){
+        digitalWrite(ledPin, LOW);
+      }
       num = counter;
     } else {
       num = message.toInt();
@@ -98,4 +104,41 @@ bool receive() {
     return true;
   }
   return false;
+}
+
+
+
+
+
+
+
+
+
+void updateCount(){
+  count++;
+  if(count>99){
+    count=10;
+  }
+  return;
+}
+
+
+String createPacket(int identifier){  
+  int num = identifier;
+  String s = ",";
+  s += String(num);
+  num -=1;
+  num *= 6;
+  num +=1;
+
+  for(int i=0;i<6;i++){
+    s += ",";
+    s += String(num+i);
+    s += String(count);
+  }
+  
+
+  updateCount();
+  return s;
+
 }
