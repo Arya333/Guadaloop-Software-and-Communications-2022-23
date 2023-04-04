@@ -1,5 +1,9 @@
 .App {
   text-align: center;
+  
+}
+html{
+  background-color: black;
 }
 
 .App-logo {
@@ -168,4 +172,105 @@
   background-color: #000000;
   border-radius: 50%;
   /* box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #006 0 -1px 9px, #3F8CFF 0 2px 14px; */
+}
+/* progressbar stuff */
+.semicircle-percent-value{
+  color: rgb(240, 240, 240);
+}
+
+.progBarContainer{
+height: auto;
+width: auto;
+align-items: center;
+
+}
+
+.topProg{
+  position: absolute;
+}
+
+.semi-circle {
+  width: 200px;
+    height: 100px;
+    border-radius: 100px 100px 0 0;
+    border-top: none;
+    border-width: 2px;
+    border-color: rgb(10, 208, 10);
+    border-style: solid;
+    border-bottom: black;
+  position: relative;
+  top: 6.5em;
+}
+
+.semi-circle-yellow {
+  width: 200px;
+    height: 100px;
+    border-radius: 100px 100px 0 0;
+    border-top: none;
+    border-width: 2px;
+    border-color: rgb(227, 217, 32);
+    border-style: solid;
+    border-bottom: black;
+  position: relative;
+  /* top: 6.5em; */
+}
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #000000;
+  padding: 20px;
+}
+
+.flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.flex-item {
+  flex: 0 0 calc(33.33% - 20px);
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.card {
+  background-color: #1c2530;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+  /* overflow: hidden; */
+ 
+}
+
+
+
+.card-content {
+  padding: 20px;
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+p {
+  margin: 10px 0 0;
+}
+
+.live_graph{
+  height: 50vh;
+  width: 50vw;
+}
+.graph_box{
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 50vh;
+}
+
+.tspan{
+  color:white
 }

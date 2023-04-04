@@ -1,6 +1,9 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import SemiCircleProgressBar from "react-progressbar-semicircle";
+import LiveGraph from './components/LiveGraph';
+// import { Card, CardContent, Typography, Grid } from '@material-ui';
 
 function App() {
  const[port, setPort] =  useState();
@@ -108,6 +111,39 @@ const set_display = () =>{
   //setSensorDisplay("array1: "+ sensor_data['array_1']+ " array_2: "+ sensor_data['array_2']+ " array3: "+ sensor_data['array_3']);
   setSensorDisplay(sensor_data)
 }
+
+const styles = {
+  card: {
+    minWidth: 275,
+    margin: '10px',
+  },
+  title: {
+    fontSize: 14,
+  },
+  pos: {
+    marginBottom: 12,
+  },
+};
+
+
+
+
+
+const sensors = [
+  { name: 'Sensor 1', data: '123' },
+  { name: 'Sensor 2', data: '456' },
+  { name: 'Sensor 3', data: '789' },
+  { name: 'Sensor 4', data: '012' },
+  { name: 'Sensor 5', data: '345' },
+  { name: 'Sensor 6', data: '678' },
+  { name: 'Sensor 7', data: '901' },
+  { name: 'Sensor 8', data: '234' },
+  { name: 'Sensor 9', data: '567' },
+  { name: 'Sensor 10', data: '890' },
+  { name: 'Sensor 11', data: '123' },
+  { name: 'Sensor 12', data: '456' },
+];
+
   
   return (
     <div className="App">
@@ -117,12 +153,49 @@ const set_display = () =>{
     <button onClick={()=> read()}> read</button>
     <button onClick={()=> toggle_light()}> light toggle</button>
     <button onClick={()=> set_display()}> show current data</button>
-    <h1>{sensor_display}</h1>
-    <div className="led-box">
-    <div ref = {sty}></div>
-    <p>Blue LED</p>
-  </div>
+    {/* <h1>{sensor_display}</h1>
+    <div className="led-box">  </div>
+    <div ref = {sty}></div> */}
+    
+    {/* <div className='progBarContainer'>
+    <div className="semicircle-container" style={{position: "absolute"}}><svg width="150" height="75" style={{transform: "rotateY(180deg)", overflow: "hidden"}}><circle cx="75" cy="75" r="70" fill="none" stroke="#202226" strokeWidth="5" strokeDasharray="219.9114857512855" style={{strokeDashoffset: "219.911"}}></circle><circle cx="75" cy="75" r="70" fill="none" stroke="#02B732" strokeWidth="5" strokeDasharray="200.9114857512855" style={{strokeDashoffset: "150", transition: "stroke-dashoffset 0.3s ease 0s, stroke-dasharray 0.3s ease 0s, stroke 0.3s ease 0s;"}}></circle>
+    <circle cx="75" cy="75" r="70" fill="none" stroke="#E0B037" strokeWidth="5" strokeDasharray="219.9114857512855" style={{strokeDashoffset: "360", transition: "stroke-dashoffset 0.3s ease 0s, stroke-dasharray 0.3s ease 0s, stroke 0.3s ease 0s;"}}></circle>
+    <circle cx="75" cy="75" r="70" fill="none" stroke="#AC2838" strokeWidth="5" strokeDasharray="219.9114857512855" style={{strokeDashoffset: "420", transition: "stroke-dashoffset 0.3s ease 0s, stroke-dasharray 0.3s ease 0s, stroke 0.3s ease 0s;"}}></circle>
+    </svg></div>
+
+    <SemiCircleProgressBar percentage={33} diameter ={150} showPercentValue strokeWidth={20} background={"#202226"} className="progressBar" style={{right:"100%"}} direction={'left'}/>    
+    </div> */}
    
+ 
+  <div className="flex-container">
+  {Array(1)
+    .fill()
+    .map(
+      (_, rowIdx) => 
+      <div className="flex-row">
+        {Array(6)
+          .fill()
+          .map(
+            (_, colIdx) => 
+            <div className="flex-item">
+              <div className="card">
+                <div className="card-content">
+                  <h4>Sensor {rowIdx * 6 + colIdx + 1}</h4>
+                                  <div className='progBarContainer'>
+                    <SemiCircleProgressBar percentage={rowIdx*3+colIdx*10} diameter ={200} showPercentValue strokeWidth={20} background={"#202226"} className="progressBar" style={{right:"100%"}}/>    
+                    </div>
+                </div>
+              </div>
+            </div>
+          
+          )
+          }
+      </div>
+    
+    )
+    }
+</div>
+<LiveGraph />
     </div>
   );
 }
