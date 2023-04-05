@@ -26,7 +26,6 @@ export default function LiveGraph() {
       }
       setData(currentData => [...currentData, newData])
   }, 100);
-
   //Clearing the interval
   return () => clearInterval(interval);
   },[count])

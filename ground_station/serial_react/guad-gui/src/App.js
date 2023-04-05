@@ -10,8 +10,9 @@ function App() {
  const [bit_val, setBit_val] = useState(49);
  const [readval, setReadVal] = useState("");
  const[led_style, setLedStyle] = useState("");
- const[sensor_data, setSensorData] = useState({"array_1":[], "array_2":[], "array_3":[]});
-const[sensor_display, setSensorDisplay] = useState();
+ const[sensor_array, setSensorArray] = useState([]);
+ const[displayed_data, setDisplayedData] = useState([1,2,3,4,5,6]);
+ const[count,setCount] = useState(0)
 const sty = useRef()
   const openSerialPort = async () =>{
    
@@ -20,7 +21,7 @@ const sty = useRef()
         baudRate: 115200
       });
       setPort(temp_port);
-      
+    
   }
 
   const flash = async() => {
@@ -48,6 +49,19 @@ const off = async()=>{
   writer.releaseLock();
 }
 
+useEffect(()=>{ console.log(sensor_array)},[sensor_array])
+useEffect(()=>{
+  
+  const interval = setInterval(() => {
+    setCount(count + 1);
+    if(sensor_array.length > 0){
+      setDisplayedData(sensor_array)
+    }
+    
+}, 100);
+//Clearing the interval
+return () => clearInterval(interval);
+},[count])
 const read =async() =>{
 // Listen to data coming from the serial device.
 const textDecoder = new TextDecoder();
@@ -61,7 +75,6 @@ while (true) {
     reader.releaseLock();
     break;
   }
-  
  //Ravi logic for sensor packet decode
  let packet_array = []
  let super_value = textDecoder.decode(value)
@@ -70,26 +83,32 @@ while (true) {
  tempstring = packet_array[packet_array.length -1];
  packet_array = packet_array.slice(0,packet_array.length -1);
  for(let i =0; i< packet_array.length; i++){
-  console.log(packet_array[i]);
+  if(packet_array[i].substring(1,2) == "1"){
+    let temp_array = packet_array[i].split(",");
+    temp_array =temp_array.slice(2,temp_array.length)
+    for(let j =0; j<temp_array.length; j++){
+      temp_array[j] = Number(temp_array[j].substring(temp_array[j].length-2,temp_array[j].length));
+    }
+    
+    setSensorArray(temp_array)
+  }
  }
 
  
-  if(textDecoder.decode(value) == "1" ){
-    if(sty.current.className!="led-blue"){
-      sty.current.className = "led-blue"
-    }
+  // if(textDecoder.decode(value) == "1" ){
+  //   if(sty.current.className!="led-blue"){
+  //     sty.current.className = "led-blue"
+  //   }
     
-    console.log(sty.current.className)
-    }else if(textDecoder.decode(value) == "0"  ){
-      if (sty.current.className != "led-off"){
-        sty.current.className = "led-off"
-      }
+  //   console.log(sty.current.className)
+  //   }else if(textDecoder.decode(value) == "0"  ){
+  //     if (sty.current.className != "led-off"){
+  //       sty.current.className = "led-off"
+  //     }
       
-    }
+  //   }
     
-   
-
-    
+ 
 }
 }
 const toggle_light = async() => {
@@ -107,42 +126,9 @@ const toggle_light = async() => {
   }
 }
 
-const set_display = () =>{
-  //setSensorDisplay("array1: "+ sensor_data['array_1']+ " array_2: "+ sensor_data['array_2']+ " array3: "+ sensor_data['array_3']);
-  setSensorDisplay(sensor_data)
-}
-
-const styles = {
-  card: {
-    minWidth: 275,
-    margin: '10px',
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-};
 
 
 
-
-
-const sensors = [
-  { name: 'Sensor 1', data: '123' },
-  { name: 'Sensor 2', data: '456' },
-  { name: 'Sensor 3', data: '789' },
-  { name: 'Sensor 4', data: '012' },
-  { name: 'Sensor 5', data: '345' },
-  { name: 'Sensor 6', data: '678' },
-  { name: 'Sensor 7', data: '901' },
-  { name: 'Sensor 8', data: '234' },
-  { name: 'Sensor 9', data: '567' },
-  { name: 'Sensor 10', data: '890' },
-  { name: 'Sensor 11', data: '123' },
-  { name: 'Sensor 12', data: '456' },
-];
 
   
   return (
@@ -152,7 +138,6 @@ const sensors = [
     <button onClick={() => off()}> off </button>
     <button onClick={()=> read()}> read</button>
     <button onClick={()=> toggle_light()}> light toggle</button>
-    <button onClick={()=> set_display()}> show current data</button>
     {/* <h1>{sensor_display}</h1>
     <div className="led-box">  </div>
     <div ref = {sty}></div> */}
@@ -182,7 +167,7 @@ const sensors = [
                 <div className="card-content">
                   <h4>Sensor {rowIdx * 6 + colIdx + 1}</h4>
                                   <div className='progBarContainer'>
-                    <SemiCircleProgressBar percentage={rowIdx*3+colIdx*10} diameter ={200} showPercentValue strokeWidth={20} background={"#202226"} className="progressBar" style={{right:"100%"}}/>    
+                    <SemiCircleProgressBar percentage={displayed_data[rowIdx * 6 + colIdx ]} diameter ={200} showPercentValue strokeWidth={20} background={"#202226"} className="progressBar" style={{right:"100%"}}/>    
                     </div>
                 </div>
               </div>
